@@ -1,38 +1,232 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+# AI Project Setup Script
+# Automated setup for AI coding assistants with professional configurations
+#
+# Usage: ./setup.sh [options]
+# Options:
+#   -h, --help     Show this help message
+#   -v, --version  Show version information
+#   --no-color     Disable colored output
+#   --dry-run      Show what would be done without making changes
+
+# Enable strict mode for safer script execution
+set -euo pipefail
+IFS=$'\n\t'
+
+# Script version and metadata
+readonly SCRIPT_VERSION="2.0.0"
+readonly SCRIPT_NAME="AI Project Setup Script"
+
+# Global variables
+ENABLE_COLOR=true
+DRY_RUN=false
+
+# Colors for output (only if terminal supports it)
+if [[ -t 1 ]] && [[ "${ENABLE_COLOR}" == "true" ]]; then
+    readonly RED='\033[0;31m'
+    readonly GREEN='\033[0;32m'
+    readonly YELLOW='\033[1;33m'
+    readonly BLUE='\033[0;34m'
+    readonly PURPLE='\033[0;35m'
+    readonly CYAN='\033[0;36m'
+    readonly NC='\033[0m' # No Color
+else
+    readonly RED=''
+    readonly GREEN=''
+    readonly YELLOW=''
+    readonly BLUE=''
+    readonly PURPLE=''
+    readonly CYAN=''
+    readonly NC=''
+fi
 
 # Function to print colored output
 print_color() {
-    local color=$1
-    local message=$2
-    echo -e "${color}${message}${NC}"
+    local color="$1"
+    local message="$2"
+    if [[ "${ENABLE_COLOR}" == "true" ]] && [[ -t 1 ]]; then
+        echo -e "${color}${message}${NC}"
+    else
+        echo "${message}"
+    fi
+}
+
+# Function to show usage information
+usage() {
+    cat << EOF
+${SCRIPT_NAME} v${SCRIPT_VERSION}
+
+USAGE:
+    $0 [OPTIONS]
+
+DESCRIPTION:
+    Automated setup script for AI coding assistants including GitHub Copilot,
+    Cline, Cursor, Windsurf, Augment, and Roo Code. Creates professional
+    configuration files, rules, and project structures.
+
+OPTIONS:
+    -h, --help      Show this help message and exit
+    -v, --version   Show version information and exit
+    --no-color      Disable colored output
+    --dry-run       Show what would be done without making changes
+    --assistant     Specify AI assistant (copilot|cline|cursor|windsurf|augment|roo)
+
+EXAMPLES:
+    $0                          # Interactive setup
+    $0 --assistant cursor       # Setup Cursor only
+    $0 --dry-run               # Preview changes without applying
+    $0 --no-color              # Run without colored output
+
+REQUIREMENTS:
+    - Bash 4.0 or higher
+    - Git (for project initialization)
+    - VS Code (optional, for extension installation)
+
+For more information, visit: https://github.com/dazeb/ai-project-setup-script
+EOF
+}
+
+# Function to show version information
+show_version() {
+    echo "${SCRIPT_NAME} v${SCRIPT_VERSION}"
+    echo "Bash version: ${BASH_VERSION}"
+    echo "Platform: $(uname -s) $(uname -m)"
+}
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Function to check required dependencies
+check_dependencies() {
+    local missing_deps=()
+
+    # Check for required commands
+    if ! command_exists "bash"; then
+        missing_deps+=("bash")
+    fi
+
+    # Check Bash version (require 4.0+)
+    if [[ "${BASH_VERSION%%.*}" -lt 4 ]]; then
+        print_color "${RED}" "Error: Bash 4.0 or higher is required. Current version: ${BASH_VERSION}"
+        exit 1
+    fi
+
+    # Check for optional but recommended commands
+    local optional_deps=("git" "curl" "code")
+    local missing_optional=()
+
+    for cmd in "${optional_deps[@]}"; do
+        if ! command_exists "$cmd"; then
+            missing_optional+=("$cmd")
+        fi
+    done
+
+    if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        print_color "${RED}" "Error: Missing required dependencies:"
+        printf '%s\n' "${missing_deps[@]}"
+        exit 1
+    fi
+
+    if [[ ${#missing_optional[@]} -gt 0 ]]; then
+        print_color "${YELLOW}" "Warning: Missing optional dependencies (some features may be limited):"
+        printf '%s\n' "${missing_optional[@]}"
+        echo
+    fi
 }
 
 # Function to print section headers
 print_header() {
     echo
-    print_color $CYAN "============================================"
-    print_color $CYAN "$1"
-    print_color $CYAN "============================================"
+    print_color "${CYAN}" "============================================"
+    print_color "${CYAN}" "$1"
+    print_color "${CYAN}" "============================================"
     echo
+}
+
+# Function to parse command line arguments
+parse_arguments() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            -v|--version)
+                show_version
+                exit 0
+                ;;
+            --no-color)
+                ENABLE_COLOR=false
+                shift
+                ;;
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            --assistant)
+                if [[ -n "${2:-}" ]]; then
+                    AI_ASSISTANT="$2"
+                    shift 2
+                else
+                    print_color "${RED}" "Error: --assistant requires a value"
+                    exit 1
+                fi
+                ;;
+            *)
+                print_color "${RED}" "Error: Unknown option '$1'"
+                echo "Use '$0 --help' for usage information."
+                exit 1
+                ;;
+        esac
+    done
+}
+
+# Function to confirm destructive actions
+confirm_action() {
+    local message="$1"
+    local default="${2:-n}"
+
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        print_color "${BLUE}" "[DRY RUN] Would ask: ${message}"
+        return 0
+    fi
+
+    local prompt
+    if [[ "${default}" == "y" ]]; then
+        prompt="${message} [Y/n] "
+    else
+        prompt="${message} [y/N] "
+    fi
+
+    read -p "${prompt}" response
+    response="${response:-${default}}"
+
+    [[ "${response}" =~ ^[Yy]$ ]]
 }
 
 # Utility function for safe directory creation
 safe_mkdir() {
     local dirs=("$@")
+
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        print_color "${BLUE}" "[DRY RUN] Would create directories: ${dirs[*]}"
+        return 0
+    fi
+
     for dir in "${dirs[@]}"; do
-        if ! mkdir -p "$dir"; then
-            print_color $RED "Failed to create directory: $dir"
-            exit 1
+        if [[ -z "${dir}" ]]; then
+            print_color "${RED}" "Error: Empty directory name provided"
+            return 1
         fi
+
+        if ! mkdir -p "${dir}"; then
+            print_color "${RED}" "Failed to create directory: ${dir}"
+            return 1
+        fi
+        print_color "${GREEN}" "Created directory: ${dir}"
     done
 }
 
@@ -41,10 +235,29 @@ create_file() {
     local filepath="$1"
     local content="$2"
 
-    if ! echo "$content" > "$filepath"; then
-        print_color $RED "Failed to create file: $filepath"
-        exit 1
+    if [[ -z "${filepath}" ]]; then
+        print_color "${RED}" "Error: Empty filepath provided"
+        return 1
     fi
+
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        print_color "${BLUE}" "[DRY RUN] Would create file: ${filepath}"
+        return 0
+    fi
+
+    # Ensure directory exists
+    local dir
+    dir="$(dirname "${filepath}")"
+    if [[ ! -d "${dir}" ]]; then
+        safe_mkdir "${dir}" || return 1
+    fi
+
+    if ! echo "${content}" > "${filepath}"; then
+        print_color "${RED}" "Failed to create file: ${filepath}"
+        return 1
+    fi
+
+    print_color "${GREEN}" "Created file: ${filepath}"
 }
 
 # Utility function for creating rule files with error handling
@@ -52,18 +265,31 @@ create_rule_file() {
     local filepath="$1"
     local content="$2"
 
-    # Ensure directory exists
-    local dir=$(dirname "$filepath")
-    safe_mkdir "$dir"
+    if [[ -z "${filepath}" || -z "${content}" ]]; then
+        print_color "${RED}" "Error: filepath and content are required for create_rule_file"
+        return 1
+    fi
 
-    # Create file with content
-    if ! cat > "$filepath" << EOF
-$content
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        print_color "${BLUE}" "[DRY RUN] Would create rule file: ${filepath}"
+        return 0
+    fi
+
+    # Ensure directory exists
+    local dir
+    dir="$(dirname "${filepath}")"
+    safe_mkdir "${dir}" || return 1
+
+    # Create file with content using a more robust method
+    if ! cat > "${filepath}" << EOF
+${content}
 EOF
     then
-        print_color $RED "Failed to create rule file: $filepath"
-        exit 1
+        print_color "${RED}" "Failed to create rule file: ${filepath}"
+        return 1
     fi
+
+    print_color "${GREEN}" "Created rule file: ${filepath}"
 }
 
 # Utility function for copying files with error handling
@@ -71,10 +297,31 @@ safe_copy() {
     local source="$1"
     local destination="$2"
 
-    if [[ -f "$source" ]]; then
-        if ! cp "$source" "$destination" 2>/dev/null; then
-            print_color $YELLOW "Warning: Failed to copy $source to $destination"
+    if [[ -z "${source}" || -z "${destination}" ]]; then
+        print_color "${RED}" "Error: source and destination are required for safe_copy"
+        return 1
+    fi
+
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        print_color "${BLUE}" "[DRY RUN] Would copy ${source} to ${destination}"
+        return 0
+    fi
+
+    if [[ -f "${source}" ]]; then
+        # Ensure destination directory exists
+        local dest_dir
+        dest_dir="$(dirname "${destination}")"
+        safe_mkdir "${dest_dir}" || return 1
+
+        if cp "${source}" "${destination}" 2>/dev/null; then
+            print_color "${GREEN}" "Copied ${source} to ${destination}"
+        else
+            print_color "${YELLOW}" "Warning: Failed to copy ${source} to ${destination}"
+            return 1
         fi
+    else
+        print_color "${YELLOW}" "Warning: Source file ${source} does not exist"
+        return 1
     fi
 }
 
@@ -84,13 +331,24 @@ place_global_rules() {
     local rules_content="$2"
     local global_path="$3"
 
-    if [[ -n "$global_path" ]] && [[ ! -f "$global_path" ]]; then
-        safe_mkdir "$(dirname "$global_path")"
-        create_rule_file "$global_path" "$rules_content"
-        print_color $GREEN "Global rules template created at $global_path"
-    elif [[ -f "$global_path" ]]; then
-        print_color $YELLOW "Global rules already exist at $global_path. Skipping to avoid overwrite."
+    if [[ -z "${assistant_name}" || -z "${rules_content}" || -z "${global_path}" ]]; then
+        print_color "${RED}" "Error: All parameters are required for place_global_rules"
+        return 1
     fi
+
+    if [[ -f "${global_path}" ]]; then
+        print_color "${YELLOW}" "Global rules already exist at ${global_path}. Skipping to avoid overwrite."
+        return 0
+    fi
+
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        print_color "${BLUE}" "[DRY RUN] Would create global rules for ${assistant_name} at ${global_path}"
+        return 0
+    fi
+
+    safe_mkdir "$(dirname "${global_path}")" || return 1
+    create_rule_file "${global_path}" "${rules_content}" || return 1
+    print_color "${GREEN}" "Global rules template created for ${assistant_name} at ${global_path}"
 }
 
 # Function to copy TypeScript/React rule files if they exist
@@ -3328,72 +3586,7 @@ setup_ai_assistant() {
     esac
 }
 
-# Function to check CUDA setup
-check_cuda_setup() {
-    print_header "CUDA Environment Check"
 
-    # Check for NVIDIA GPU and driver
-    print_color $YELLOW "Checking for NVIDIA GPU and driver..."
-    lspci -k | grep -EA3 'VGA|3D|Display'
-
-    # Check CUDA compiler version
-    print_color $YELLOW "Checking CUDA compiler version..."
-    if command -v nvcc &> /dev/null; then
-        nvcc --version
-    else
-        print_color $RED "CUDA compiler (nvcc) not found. Please install CUDA toolkit."
-        return 1
-    fi
-
-    # Add CUDA to PATH and LD_LIBRARY_PATH if not already present
-    print_color $YELLOW "Configuring CUDA environment variables..."
-    CUDA_PATH="/usr/local/cuda"
-
-    # Ensure CUDA bin is in PATH
-    if ! echo "$PATH" | grep -q "$CUDA_PATH/bin"; then
-        echo "export PATH=\$PATH:$CUDA_PATH/bin" >> ~/.bashrc
-        print_color $GREEN "Added CUDA bin to PATH in ~/.bashrc"
-    fi
-
-    # Ensure CUDA lib64 is in LD_LIBRARY_PATH
-    if ! echo "$LD_LIBRARY_PATH" | grep -q "$CUDA_PATH/lib64"; then
-        echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$CUDA_PATH/lib64" >> ~/.bashrc
-        print_color $GREEN "Added CUDA lib64 to LD_LIBRARY_PATH in ~/.bashrc"
-    fi
-
-    # Source .bashrc to apply changes immediately
-    source ~/.bashrc
-    print_color $GREEN "Sourced ~/.bashrc to apply changes."
-
-    # Verify CUDA environment variables
-    print_color $YELLOW "Verifying CUDA environment variables..."
-    echo "PATH: $PATH"
-    echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
-
-    # Check for cuDNN
-    print_color $YELLOW "Checking for cuDNN installation..."
-    if [ -f "$CUDA_PATH/include/cudnn.h" ]; then
-        print_color $GREEN "cuDNN found."
-    else
-        print_color $RED "cuDNN not found. It is highly recommended for deep learning frameworks like PyTorch."
-        print_color $BLUE "Please download and install cuDNN from NVIDIA's website."
-        print_color $BLUE "Instructions: https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html"
-    fi
-
-    # Check for FFmpeg with CUDA support
-    print_color $YELLOW "Checking for FFmpeg with CUDA support..."
-    if command -v ffmpeg &> /dev/null; then
-        if ffmpeg -version 2>&1 | grep -i cuda; then
-            print_color $GREEN "FFmpeg with CUDA support found."
-        else
-            print_color $YELLOW "FFmpeg found, but without CUDA support."
-            print_color $BLUE "Consider compiling FFmpeg with NVENC/NVDEC support for hardware-accelerated video processing."
-            print_color $BLUE "Example guide: https://docs.nvidia.com/video/ffmpeg-with-nvidia-gpu.html"
-        fi
-    else
-        print_color $RED "FFmpeg not found. Please install FFmpeg if you plan to do video processing."
-    fi
-}
 
 # Function to ask if user wants to create a new project
 ask_create_project() {
@@ -3594,60 +3787,105 @@ EOF
     echo "  ✓ package.json and .gitignore files"
 }
 
-# Main execution
-main() {
-    print_header "Development Environment Setup Script"
+# Cleanup function for temporary files and error handling
+cleanup() {
+    local exit_code=$?
 
-    # Ask user about AI assistant preference
-    ask_ai_assistant
+    # Remove any temporary files if they exist
+    if [[ -n "${TEMP_DIR:-}" ]] && [[ -d "${TEMP_DIR}" ]]; then
+        rm -rf "${TEMP_DIR}"
+    fi
+
+    if [[ ${exit_code} -ne 0 ]]; then
+        print_color "${RED}" "Script exited with error code ${exit_code}"
+    fi
+
+    exit ${exit_code}
+}
+
+# Set up signal handlers for cleanup
+trap cleanup EXIT
+trap 'cleanup' INT TERM
+
+# Function to initialize script environment
+init_script() {
+    # Create temporary directory for any temp files
+    TEMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'ai-setup')
+
+    # Check dependencies
+    check_dependencies
+
+    # Validate environment
+    if [[ ! -w "." ]]; then
+        print_color "${RED}" "Error: Current directory is not writable"
+        exit 1
+    fi
+
+    print_color "${GREEN}" "Environment checks passed successfully"
+}
+
+# Main execution function
+main() {
+    # Parse command line arguments first
+    parse_arguments "$@"
+
+    # Initialize script environment
+    init_script
+
+    print_header "${SCRIPT_NAME} v${SCRIPT_VERSION}"
+
+    if [[ "${DRY_RUN}" == "true" ]]; then
+        print_color "${BLUE}" "DRY RUN MODE: No changes will be made"
+        echo
+    fi
+
+    # Ask user about AI assistant preference (unless specified via CLI)
+    if [[ -z "${AI_ASSISTANT:-}" ]]; then
+        ask_ai_assistant
+    else
+        print_color "${GREEN}" "Using AI assistant: ${AI_ASSISTANT}"
+    fi
 
     # Ask if user wants to create a new project or just configure current directory
     echo
-    print_color $YELLOW "Setup Options:"
+    print_color "${YELLOW}" "Setup Options:"
     echo "1. Configure current directory with AI assistant rules"
     echo "2. Create a new project folder with AI assistant configuration"
     echo
+
+    local setup_option
     read -p "Choose option (1 or 2): " setup_option
 
-    case $setup_option in
+    case ${setup_option} in
         1)
-            print_color $CYAN "Configuring current directory..."
+            print_color "${CYAN}" "Configuring current directory..."
             setup_ai_assistant
             ;;
         2)
             ask_create_project
             ;;
         *)
-            print_color $RED "Invalid option. Configuring current directory..."
+            print_color "${RED}" "Invalid option. Configuring current directory..."
             setup_ai_assistant
             ;;
     esac
 
-    # Ask if user wants to check CUDA setup (only if configuring current directory)
-    if [[ $setup_option == "1" ]]; then
-        echo
-        read -p "Do you want to check/configure CUDA environment? (y/n): " cuda_choice
-        if [[ $cuda_choice =~ ^[Yy]$ ]]; then
-            check_cuda_setup
-        fi
-    fi
-
     print_header "Setup Complete!"
 
-    if [[ $setup_option == "1" ]]; then
-        print_color $GREEN "Your current directory has been configured with AI assistant rules."
+    if [[ ${setup_option} == "1" ]]; then
+        print_color "${GREEN}" "Your current directory has been configured with AI assistant rules."
 
-        if [ "$AI_ASSISTANT" != "none" ]; then
-            print_color $YELLOW "Please restart your editor to apply all AI assistant settings."
-        fi
-
-        if [[ $cuda_choice =~ ^[Yy]$ ]]; then
-            print_color $YELLOW "Please restart your terminal or session for CUDA changes to take full effect."
+        if [[ "${AI_ASSISTANT}" != "none" ]]; then
+            print_color "${YELLOW}" "Please restart your editor to apply all AI assistant settings."
         fi
     else
-        print_color $GREEN "Project creation completed! Follow the instructions above to get started."
+        print_color "${GREEN}" "Project creation completed! Follow the instructions above to get started."
     fi
+
+    print_color "${GREEN}" "Script completed successfully!"
 }
 
-# Run main function
-main
+# Script entry point
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
