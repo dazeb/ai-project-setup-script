@@ -1,0 +1,64 @@
+---
+description: TypeScript Rules
+globs: 
+alwaysApply: true
+---
+
+
+## General TypeScript Guidelines
+
+- Always use TypeScript for new components and files
+- Use strict type checking with `strict: true` in tsconfig.json
+- Prefer explicit typing for function parameters and return types
+- Use proper typing for props, state, and event handlers
+- Avoid `any` type - use proper types or `unknown` when necessary
+
+## React TypeScript Patterns
+
+### Component Props
+
+```typescript
+interface ComponentProps {
+  title: string;
+  count?: number;
+  onClick: (id: string) => void;
+  children?: React.ReactNode;
+}
+
+const Component: React.FC<ComponentProps> = ({
+  title,
+  count = 0,
+  onClick,
+  children,
+}) => {
+  // component logic
+};
+```
+
+### Hooks Typing
+
+```typescript
+const [state, setState] = useState<string>("");
+const [user, setUser] = useState<User | null>(null);
+const divRef = useRef<HTMLDivElement>(null);
+
+// Custom hooks
+const useCustomHook = (
+  initialValue: number
+): [number, (value: number) => void] => {
+  const [value, setValue] = useState(initialValue);
+  return [value, setValue];
+};
+```
+
+### Event Handlers
+
+```typescript
+const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  // handle click
+};
+
+const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // handle change
+};
+```

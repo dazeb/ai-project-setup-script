@@ -1,0 +1,164 @@
+---
+description: Tailwind CSS Rules
+globs: 
+alwaysApply: true
+---
+
+
+## General Guidelines
+
+- Use Tailwind CSS classes for all styling
+- Avoid custom CSS unless absolutely necessary
+- Use semantic utility classes over arbitrary values
+- Prefer responsive design patterns with Tailwind breakpoints
+
+## Responsive Design
+
+Use Tailwind's responsive prefixes:
+
+```typescript
+<div className="w-full md:w-1/2 lg:w-1/3">
+  Responsive width
+</div>
+
+<div className="text-sm md:text-base lg:text-lg">
+  Responsive text size
+</div>
+```
+
+Breakpoints:
+
+- `sm:` (640px+)
+- `md:` (768px+)
+- `lg:` (1024px+)
+- `xl:` (1280px+)
+- `2xl:` (1536px+)
+
+## Layout Patterns
+
+### Flexbox
+
+```typescript
+// Centered content
+<div className="flex items-center justify-center min-h-screen">
+  <div>Centered content</div>
+</div>
+
+// Navigation
+<nav className="flex items-center justify-between p-4">
+  <div>Logo</div>
+  <div className="flex space-x-4">Navigation items</div>
+</nav>
+```
+
+### Grid
+
+```typescript
+// Responsive grid
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div>Grid item</div>
+  <div>Grid item</div>
+  <div>Grid item</div>
+</div>
+```
+
+## Color System
+
+Use design system colors with CSS variables:
+
+```typescript
+// Text colors
+className = "text-foreground text-muted-foreground text-primary";
+
+// Background colors
+className = "bg-background bg-card bg-primary";
+
+// Border colors
+className = "border-border border-input";
+```
+
+## Spacing and Sizing
+
+### Consistent spacing
+
+```typescript
+// Padding
+className = "p-4 px-6 py-2";
+
+// Margin
+className = "m-4 mx-auto my-8";
+
+// Space between children
+className = "space-x-4 space-y-2";
+
+// Gap in flex/grid
+className = "gap-4 gap-x-6 gap-y-2";
+```
+
+### Common patterns
+
+```typescript
+// Card spacing
+className = "p-6 space-y-4";
+
+// Button spacing
+className = "px-4 py-2";
+
+// Section spacing
+className = "py-8 md:py-16";
+```
+
+## Typography
+
+```typescript
+// Headings
+className = "text-4xl font-bold tracking-tight";
+className = "text-2xl font-semibold";
+className = "text-xl font-medium";
+
+// Body text
+className = "text-base leading-relaxed";
+className = "text-sm text-muted-foreground";
+
+// Code
+className = "font-mono text-sm bg-muted px-2 py-1 rounded";
+```
+
+## Interactive States
+
+```typescript
+// Hover effects
+className = "hover:bg-accent hover:text-accent-foreground";
+
+// Focus states
+className = "focus:outline-none focus:ring-2 focus:ring-ring";
+
+// Active states
+className = "active:scale-95";
+
+// Disabled states
+className = "disabled:opacity-50 disabled:pointer-events-none";
+```
+
+## Animations
+
+```typescript
+// Transitions
+className = "transition-colors duration-200";
+className = "transition-all duration-300 ease-in-out";
+
+// Hover animations
+className = "hover:scale-105 transition-transform";
+
+// Loading states
+className = "animate-pulse";
+className = "animate-spin";
+```
+
+## Best Practices
+
+1. **Use semantic spacing**: Prefer `space-y-4` over individual margins
+2. **Mobile-first**: Start with mobile styles, add responsive prefixes for larger screens
+3. **Consistent sizing**: Use the spacing scale (4px increments)
+4. **Combine utilities**: Group related utilities logically
+5. **Use CSS variables**: Leverage the design system color tokens

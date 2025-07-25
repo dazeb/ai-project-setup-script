@@ -1,0 +1,582 @@
+---
+description: shadcn/ui Component Rules
+globs:
+alwaysApply: true
+---
+
+# shadcn/ui Components Reference
+
+This project includes the following components in `@/components/ui` (shadcn/ui + custom extensions), all compatible with Vite + React:
+
+## Core Components
+
+- **Button** — Button with variants (default, outline, destructive, ghost, link, secondary, icon, size).
+- **Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter** — Card and its sections for content wrapping.
+- **Badge** — Small label for statuses, tags, etc.
+- **Banner** — Banner for notifications, errors, info.
+- **Avatar, AvatarImage, AvatarFallback** — User avatar with fallback.
+- **Skeleton** — Skeleton loader.
+- **Separator** — Horizontal or vertical divider.
+- **Label** — Form label.
+- **Input** — Text input field.
+- **Textarea** — Multiline text input.
+- **Switch** — Toggle switch.
+- **Checkbox** — Checkbox input.
+- **RadioGroup, RadioGroupItem** — Radio button group.
+- **Select, SelectItem, ...** — Dropdown select.
+- **DropdownMenu, ...** — Context menu.
+- **ContextMenu, ...** — Right-click context menu.
+- **Popover, PopoverContent, ...** — Popover window.
+- **Tooltip, TooltipContent, ...** — Tooltip (hover hint).
+- **Tabs, TabsList, TabsTrigger, TabsContent** — Tab navigation.
+- **Accordion, AccordionItem, AccordionTrigger, AccordionContent** — Accordion sections.
+- **Dialog, DialogContent, ...** — Modal dialog.
+- **AlertDialog, ...** — Confirmation modal dialog.
+- **Sheet, SheetContent, ...** — Sliding side panel.
+- **Drawer, DrawerContent, ...** — Drawer for mobile/desktop.
+- **Toast, ToastProvider, ...** — Toast notifications.
+- **Sonner, Toaster** — Alternative toast (sonner).
+- **Progress** — Progress bar.
+- **Table, TableHeader, TableBody, ...** — Table.
+- **Pagination, PaginationItem, ...** — Pagination controls.
+- **Timeline, TimelineItem, ...** — Timeline/steps.
+- **HeroPill** — Decorative element for hero sections.
+- **Mockup, MockupFrame** — Wrapper for mockups/demos.
+- **CircleProgress** — Circular progress indicator.
+- **Chart, ChartContainer, ...** — Charts (based on recharts).
+- **Multiselect** — Multi-select with search (cmdk).
+- **Command, CommandDialog, ...** — Command palette (cmdk).
+- **ResizablePanel, ResizablePanelGroup, ResizableHandle** — Resizable panels.
+- **Sidebar, SidebarProvider, ...** — Sidebar with groups, menus, triggers.
+- **ThemeToggle** — Light/dark theme toggle.
+- **Tag** — Tag (uses plain `<a>` for links).
+
+## Descriptions and Usage Examples
+
+### Button
+
+A button with variants and sizes.
+
+```tsx
+import { Button } from "@/components/ui/button"
+<Button>Click me</Button>
+<Button variant="outline">Outline</Button>
+<Button size="icon"><Rocket /></Button>
+```
+
+### Card
+
+A card for wrapping content.
+
+```tsx
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+<Card>
+  <CardHeader>
+    <CardTitle>Title</CardTitle>
+  </CardHeader>
+  <CardContent>Content</CardContent>
+</Card>;
+```
+
+### Badge
+
+Small label for statuses, tags, etc.
+
+```tsx
+import { Badge } from "@/components/ui/badge";
+<Badge>New</Badge>;
+```
+
+### Banner
+
+Banner for notifications, errors, info.
+
+```tsx
+import { Banner } from "@/components/ui/banner";
+<Banner variant="muted">Info message</Banner>;
+```
+
+### Avatar
+
+User avatar with fallback.
+
+```tsx
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+<Avatar>
+  <AvatarImage src="/user.png" />
+  <AvatarFallback>AB</AvatarFallback>
+</Avatar>;
+```
+
+### Skeleton
+
+Skeleton loader.
+
+```tsx
+import { Skeleton } from "@/components/ui/skeleton";
+<Skeleton className="h-8 w-32" />;
+```
+
+### Separator
+
+Horizontal or vertical divider.
+
+```tsx
+import { Separator } from "@/components/ui/separator";
+<Separator />;
+```
+
+### Label
+
+Form label.
+
+```tsx
+import { Label } from "@/components/ui/label";
+<Label htmlFor="email">Email</Label>;
+```
+
+### Input
+
+Text input field.
+
+```tsx
+import { Input } from "@/components/ui/input";
+<Input placeholder="Type here..." />;
+```
+
+### Textarea
+
+Multiline text input.
+
+```tsx
+import { Textarea } from "@/components/ui/textarea";
+<Textarea placeholder="Type here..." />;
+```
+
+### Switch
+
+Toggle switch.
+
+```tsx
+import { Switch } from "@/components/ui/switch";
+<Switch />;
+```
+
+### Checkbox
+
+Checkbox input.
+
+```tsx
+import { Checkbox } from "@/components/ui/checkbox";
+<Checkbox />;
+```
+
+### RadioGroup
+
+Radio button group.
+
+```tsx
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+<RadioGroup defaultValue="1">
+  <RadioGroupItem value="1" />
+  <RadioGroupItem value="2" />
+</RadioGroup>;
+```
+
+### Select
+
+Dropdown select.
+
+```tsx
+import {
+  Select,
+  SelectItem,
+  SelectTrigger,
+  SelectContent,
+} from "@/components/ui/select";
+<Select>
+  <SelectTrigger />
+  <SelectContent>
+    <SelectItem value="1">One</SelectItem>
+    <SelectItem value="2">Two</SelectItem>
+  </SelectContent>
+</Select>;
+```
+
+### DropdownMenu
+
+Context menu.
+
+```tsx
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+<DropdownMenu>
+  <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuItem>Item 1</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>;
+```
+
+### Popover
+
+Popover window.
+
+```tsx
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+<Popover>
+  <PopoverTrigger>Open</PopoverTrigger>
+  <PopoverContent>Content</PopoverContent>
+</Popover>;
+```
+
+### Tooltip
+
+Tooltip (hover hint).
+
+```tsx
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+<Tooltip>
+  <TooltipTrigger>Hover me</TooltipTrigger>
+  <TooltipContent>Tooltip text</TooltipContent>
+</Tooltip>;
+```
+
+### Tabs
+
+Tab navigation.
+
+```tsx
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+<Tabs defaultValue="tab1">
+  <TabsList>
+    <TabsTrigger value="tab1">Tab 1</TabsTrigger>
+    <TabsTrigger value="tab2">Tab 2</TabsTrigger>
+  </TabsList>
+  <TabsContent value="tab1">Content 1</TabsContent>
+  <TabsContent value="tab2">Content 2</TabsContent>
+</Tabs>;
+```
+
+### Accordion
+
+Accordion sections.
+
+```tsx
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+<Accordion type="single" collapsible>
+  <AccordionItem value="item-1">
+    <AccordionTrigger>Section 1</AccordionTrigger>
+    <AccordionContent>Content 1</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+```
+
+### Dialog
+
+Modal dialog.
+
+```tsx
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+<Dialog>
+  <DialogTrigger>Open</DialogTrigger>
+  <DialogContent>Dialog content</DialogContent>
+</Dialog>;
+```
+
+### AlertDialog
+
+Confirmation modal dialog.
+
+```tsx
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+<AlertDialog>
+  <AlertDialogTrigger>Delete</AlertDialogTrigger>
+  <AlertDialogContent>
+    <AlertDialogAction>Yes</AlertDialogAction>
+    <AlertDialogCancel>No</AlertDialogCancel>
+  </AlertDialogContent>
+</AlertDialog>;
+```
+
+### Sheet
+
+Sliding side panel.
+
+```tsx
+import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+<Sheet>
+  <SheetTrigger>Open</SheetTrigger>
+  <SheetContent>Sheet content</SheetContent>
+</Sheet>;
+```
+
+### Drawer
+
+Drawer for mobile/desktop.
+
+```tsx
+import { Drawer, DrawerTrigger, DrawerContent } from "@/components/ui/drawer";
+<Drawer>
+  <DrawerTrigger>Open</DrawerTrigger>
+  <DrawerContent>Drawer content</DrawerContent>
+</Drawer>;
+```
+
+### Toast
+
+Toast notifications.
+
+```tsx
+import {
+  ToastProvider,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+} from "@/components/ui/toast";
+<ToastProvider>
+  <Toast>
+    <ToastTitle>Title</ToastTitle>
+    <ToastDescription>Description</ToastDescription>
+  </Toast>
+</ToastProvider>;
+```
+
+### Sonner
+
+Alternative toast (sonner).
+
+```tsx
+import { Toaster } from "@/components/ui/sonner";
+<Toaster />;
+```
+
+### Progress
+
+Progress bar.
+
+```tsx
+import { Progress } from "@/components/ui/progress";
+<Progress value={50} />;
+```
+
+### Table
+
+Table.
+
+```tsx
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+<Table>
+  <TableHeader>...</TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Cell</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>;
+```
+
+### Pagination
+
+Pagination controls.
+
+```tsx
+import {
+  Pagination,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+<Pagination>
+  <PaginationPrevious />
+  <PaginationItem>1</PaginationItem>
+  <PaginationNext />
+</Pagination>;
+```
+
+### Timeline
+
+Timeline/steps.
+
+```tsx
+import {
+  Timeline,
+  TimelineItem,
+  TimelineContent,
+} from "@/components/ui/timeline";
+<Timeline defaultValue={1}>
+  <TimelineItem step={1}>
+    <TimelineContent>Step 1</TimelineContent>
+  </TimelineItem>
+</Timeline>;
+```
+
+### HeroPill
+
+Decorative element for hero sections.
+
+```tsx
+import { HeroPill } from "@/components/ui/hero-pill";
+<HeroPill text="New!" />;
+```
+
+### Mockup
+
+Wrapper for mockups/demos.
+
+```tsx
+import { Mockup, MockupFrame } from "@/components/ui/mockup";
+<Mockup>
+  <MockupFrame>Demo</MockupFrame>
+</Mockup>;
+```
+
+### CircleProgress
+
+Circular progress indicator.
+
+```tsx
+import { CircleProgress } from "@/components/ui/circle-progress";
+<CircleProgress progress={0.7} />;
+```
+
+### Chart
+
+Charts (based on recharts).
+
+```tsx
+import { ChartContainer } from "@/components/ui/chart";
+<ChartContainer config={{}}>{/* ... */}</ChartContainer>;
+```
+
+### Multiselect
+
+Multi-select with search (cmdk).
+
+```tsx
+import Multiselect from "@/components/ui/multiselect";
+<Multiselect options={[{ value: "1", label: "One" }]} />;
+```
+
+### Command
+
+Command palette (cmdk).
+
+```tsx
+import { CommandDialog } from "@/components/ui/command";
+<CommandDialog open={open} onOpenChange={setOpen}>
+  ...
+</CommandDialog>;
+```
+
+### ResizablePanel
+
+Resizable panels.
+
+```tsx
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
+<ResizablePanelGroup>
+  <ResizablePanel>Left</ResizablePanel>
+  <ResizableHandle />
+  <ResizablePanel>Right</ResizablePanel>
+</ResizablePanelGroup>;
+```
+
+### Sidebar
+
+Sidebar with groups, menus, triggers.
+
+```tsx
+import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
+<SidebarProvider>
+  <Sidebar>...</Sidebar>
+</SidebarProvider>;
+```
+
+### ThemeToggle
+
+Light/dark theme toggle.
+
+```tsx
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+<ThemeToggle />;
+```
+
+### Tag
+
+Tag (uses plain `<a>` for links).
+
+```tsx
+import { Tag } from "@/components/ui/tag";
+<Tag slug="react" name="React" asChild>
+  <a href="/tags/react">React</a>
+</Tag>;
+```
+
+---
+
+## Icons
+
+- Use `lucide-react` for icons:  
+  `import { User, Settings, Home } from "lucide-react"`
+
+## Using cn()
+
+```tsx
+import { cn } from "@/lib/utils";
+<div className={cn("p-4", isActive && "bg-primary")}>...</div>;
+```
+
+## Tailwind & Design System
+
+- Use Tailwind for all styling; avoid custom CSS unless necessary.
+- Colors: use CSS variables (`bg-primary`, `text-muted`, etc.).
+- For typography, use semantic tags and Tailwind classes.
+
+## Adding New Components
+
+1. Copy a component from https://ui.shadcn.com/ or the Shipvibes repository.
+2. Place it in `src/components/ui/`.
+3. Always import via the `@/components/ui/` alias.
+
+---
+
+**Note:**  
+All components are Vite/React compatible. If you see any reference to `next/link` or other Next.js-specific APIs, replace them with plain React/Vite code (e.g., use `<a href=...>` for links).
+
+---
+
+For more examples or documentation on a specific component, see the source file in `src/components/ui/` or the official shadcn/ui docs.
