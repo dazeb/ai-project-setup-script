@@ -28,6 +28,15 @@ This project provides a comprehensive setup script that automatically configures
 - Project-specific customization capabilities
 - Organization-wide best practices
 
+### **Enhanced Script Features (v2.0)**
+- **Robust Error Handling** - Comprehensive validation and graceful error recovery
+- **Dry-Run Mode** - Preview changes before applying them
+- **Dependency Checking** - Automatic validation of required tools and versions
+- **Command Line Interface** - Full CLI support with help, version, and options
+- **Signal Handling** - Proper cleanup on interruption or errors
+- **Cross-Platform** - Improved portability across different systems
+- **Professional Output** - Color-coded messages with clear status indicators
+
 ---
 
 ## 🎯 Quick Start
@@ -38,11 +47,32 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
+### **Command Line Options**
+```bash
+# Interactive setup (recommended)
+./setup.sh
+
+# Show help and all available options
+./setup.sh --help
+
+# Setup specific AI assistant directly
+./setup.sh --assistant cursor
+
+# Preview changes without applying them
+./setup.sh --dry-run
+
+# Run without colored output
+./setup.sh --no-color
+
+# Show version information
+./setup.sh --version
+```
+
 The setup script will:
 1. **Detect your AI coding assistant preference** (GitHub Copilot, Cline, Cursor, Windsurf, Augment, Roo Code)
 2. **Automatically configure** the chosen assistant with professional rules and templates
-3. **Set up CUDA environment** (optional) for GPU-accelerated development
-4. **Create project templates** with best practices and documentation standards
+3. **Create project templates** with best practices and documentation standards
+4. **Validate environment** and check dependencies before making changes
 
 ### **What Gets Configured**
 
@@ -266,30 +296,44 @@ my-new-project/
 ### **Script Architecture**
 The project includes multiple scripts for different use cases:
 
-- **`setup.sh`** - Main AI assistant configuration script (new, recommended)
+- **`setup.sh`** - Main AI assistant configuration script (v2.0, recommended)
 - **`start.sh`** - Legacy project scaffolding script
 - **`start_task.sh`** - Interactive requirements-driven development workflow
+
+### **Enhanced Script Features (v2.0)**
+- **Strict Mode** - Uses `set -euo pipefail` for safer script execution
+- **Signal Handling** - Proper cleanup on interruption with trap handlers
+- **Dependency Validation** - Automatic checking of required tools and versions
+- **Error Recovery** - Comprehensive error handling with informative messages
+- **Dry-Run Mode** - Preview all changes before applying them
+- **Command Line Interface** - Full CLI support with help, version, and options
+- **Cross-Platform** - Improved portability with `#!/usr/bin/env bash`
+- **Professional Output** - Color-coded messages with terminal detection
 
 ### **Extensibility**
 - **Modular Design** - Easy to add new AI assistants or modify existing ones
 - **Template System** - Customizable templates for different project types
 - **Rule Banks** - Organized collections of rules for easy management
 - **Configuration Detection** - Automatic detection of installed AI assistants
+- **Robust Testing** - Built-in validation and testing capabilities
 
 ---
 
 ## 📋 Requirements
 
 ### **System Requirements**
-- **Linux/macOS/Windows** - Cross-platform bash script support
+- **Bash 4.0+** - The script automatically validates your Bash version
+- **Linux/macOS/Windows** - Cross-platform bash script support with WSL
+- **Write Permissions** - Current directory must be writable for configuration files
+
+### **AI Assistant Requirements**
 - **VS Code** - Required for most AI assistants (GitHub Copilot, Cline, Augment, Roo Code)
 - **Cursor** - Required for Cursor-specific configuration
 - **Windsurf** - Required for Windsurf-specific configuration
 
 ### **Optional Requirements**
-- **NVIDIA GPU** - For CUDA development environment setup
-- **CUDA Toolkit** - For GPU-accelerated development
-- **Git** - For version control of rules and templates
+- **Git** - For version control of rules and templates (recommended)
+- **curl** - For downloading additional resources (if needed)
 
 ### **AI Assistant Extensions**
 The script will attempt to install these automatically:
@@ -339,10 +383,68 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-## 📞 Support
+## � Troubleshooting
+
+### **Common Issues**
+
+#### **Permission Errors**
+```bash
+# Make script executable
+chmod +x setup.sh
+
+# Check write permissions in current directory
+ls -la .
+```
+
+#### **Bash Version Issues**
+```bash
+# Check your Bash version (requires 4.0+)
+bash --version
+
+# On macOS, install newer Bash via Homebrew
+brew install bash
+```
+
+#### **Dependency Issues**
+```bash
+# Use dry-run to check what would be installed
+./setup.sh --dry-run
+
+# Check for missing dependencies
+./setup.sh --help  # Shows requirements
+```
+
+#### **Script Debugging**
+```bash
+# Run with verbose output
+bash -x ./setup.sh
+
+# Check script syntax
+bash -n ./setup.sh
+
+# Use dry-run mode to preview changes
+./setup.sh --dry-run --assistant cursor
+```
+
+### **Getting Help**
+```bash
+# Show all available options
+./setup.sh --help
+
+# Show version and system information
+./setup.sh --version
+
+# Preview changes without applying
+./setup.sh --dry-run
+```
+
+---
+
+## �📞 Support
 
 - **Issues** - Report bugs or request features via GitHub Issues
 - **Discussions** - Join community discussions for questions and ideas
 - **Documentation** - Refer to individual AI assistant documentation for specific features
+- **Script Help** - Use `./setup.sh --help` for built-in documentation
 
 **Happy Coding with AI! 🚀**
