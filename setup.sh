@@ -25,6 +25,74 @@ print_header() {
     echo
 }
 
+# Utility function for safe directory creation
+safe_mkdir() {
+    local dirs=("$@")
+    for dir in "${dirs[@]}"; do
+        if ! mkdir -p "$dir"; then
+            print_color $RED "Failed to create directory: $dir"
+            exit 1
+        fi
+    done
+}
+
+# Utility function for safe file creation
+create_file() {
+    local filepath="$1"
+    local content="$2"
+
+    if ! echo "$content" > "$filepath"; then
+        print_color $RED "Failed to create file: $filepath"
+        exit 1
+    fi
+}
+
+# Utility function for creating rule files with error handling
+create_rule_file() {
+    local filepath="$1"
+    local content="$2"
+
+    # Ensure directory exists
+    local dir=$(dirname "$filepath")
+    safe_mkdir "$dir"
+
+    # Create file with content
+    if ! cat > "$filepath" << EOF
+$content
+EOF
+    then
+        print_color $RED "Failed to create rule file: $filepath"
+        exit 1
+    fi
+}
+
+# Utility function for copying files with error handling
+safe_copy() {
+    local source="$1"
+    local destination="$2"
+
+    if [[ -f "$source" ]]; then
+        if ! cp "$source" "$destination" 2>/dev/null; then
+            print_color $YELLOW "Warning: Failed to copy $source to $destination"
+        fi
+    fi
+}
+
+# Utility function for automatic global rules placement
+place_global_rules() {
+    local assistant_name="$1"
+    local rules_content="$2"
+    local global_path="$3"
+
+    if [[ -n "$global_path" ]] && [[ ! -f "$global_path" ]]; then
+        safe_mkdir "$(dirname "$global_path")"
+        create_rule_file "$global_path" "$rules_content"
+        print_color $GREEN "Global rules template created at $global_path"
+    elif [[ -f "$global_path" ]]; then
+        print_color $YELLOW "Global rules already exist at $global_path. Skipping to avoid overwrite."
+    fi
+}
+
 # Function to copy TypeScript/React rule files if they exist
 copy_typescript_react_rules() {
     local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -475,12 +543,19 @@ setup_github_copilot() {
 
     # Install GitHub Copilot extension if VS Code is available
     if command -v code &> /dev/null; then
-        print_color $YELLOW "Installing GitHub Copilot extension..."
+        print_color "$YELLOW" "Installing GitHub Copilot extension..."
         code --install-extension GitHub.copilot
         code --install-extension GitHub.copilot-chat
     else
-        print_color $YELLOW "VS Code not found. Extensions will need to be installed manually."
+        print_color "$YELLOW" "VS Code not found. Extensions will need to be installed manually."
     fi
+
+    # Consolidated directory creation
+    print_color "$YELLOW" "Creating GitHub Copilot directory structure..."
+    safe_mkdir \
+        .github \
+        .github/instructions \
+        .github/prompts
 
     # Create workspace settings directory
     setup_vscode_workspace
@@ -488,11 +563,10 @@ setup_github_copilot() {
     # Copy TypeScript/React rules
     copy_typescript_react_rules
 
-    # Create GitHub Copilot instructions directory and file
-    mkdir -p .github
+    # Create GitHub Copilot instructions using utility functions
+    print_color "$YELLOW" "Creating GitHub Copilot instructions..."
 
-    cat > .github/copilot-instructions.md << 'EOF'
-# Project Coding Standards
+    create_rule_file ".github/copilot-instructions.md" '# Project Coding Standards
 
 ## General Guidelines
 - Write clean, readable, and maintainable code
@@ -527,14 +601,9 @@ setup_github_copilot() {
 - Include edge cases in tests
 - Use descriptive test names
 - Mock external dependencies
-- Aim for good test coverage
-EOF
+- Aim for good test coverage'
 
-    # Create instructions directory and sample files
-    mkdir -p .github/instructions
-
-    cat > .github/instructions/typescript.instructions.md << 'EOF'
----
+    create_rule_file ".github/instructions/typescript.instructions.md" '---
 applyTo: "**/*.ts,**/*.tsx"
 description: "TypeScript and React coding guidelines"
 ---
@@ -563,8 +632,7 @@ description: "TypeScript and React coding guidelines"
 - Use camelCase for variables, functions, and methods
 - Use UPPER_SNAKE_CASE for constants
 - Prefix custom hooks with 'use'
-- Use descriptive names that explain purpose
-EOF
+- Use descriptive names that explain purpose'
 
     cat > .github/instructions/python.instructions.md << 'EOF'
 ---
@@ -698,10 +766,14 @@ setup_cline() {
     # Copy TypeScript/React rules
     copy_typescript_react_rules
 
-    # Create .clinerules folder structure
-    print_color $YELLOW "Creating Cline rules structure..."
-    mkdir -p .clinerules
-    mkdir -p clinerules-bank/{clients,frameworks,project-types,contexts}
+    # Consolidated directory creation
+    print_color "$YELLOW" "Creating Cline directory structure..."
+    safe_mkdir \
+        .clinerules \
+        clinerules-bank/clients \
+        clinerules-bank/frameworks \
+        clinerules-bank/project-types \
+        clinerules-bank/contexts
 
     # Create main coding standards rule
     cat > .clinerules/01-coding-standards.md << 'EOF'
@@ -1648,14 +1720,18 @@ setup_windsurf() {
         print_color $GREEN "Windsurf detected. Setting up rules and configuration."
     fi
 
-    # Create Windsurf rules structure
-    print_color $YELLOW "Creating Windsurf rules structure..."
-    mkdir -p .windsurf/rules
-    mkdir -p windsurf-rules-bank/{frameworks,project-types,workflows,standards,contexts}
+    # Consolidated directory creation
+    print_color $YELLOW "Creating Windsurf directory structure..."
+    safe_mkdir \
+        .windsurf/rules \
+        windsurf-rules-bank/frameworks \
+        windsurf-rules-bank/project-types \
+        windsurf-rules-bank/workflows \
+        windsurf-rules-bank/standards \
+        windsurf-rules-bank/contexts
 
-    # Create global rules file (user will need to move this manually)
+    # Create global rules template with automatic placement
     print_color $YELLOW "Creating global rules template..."
-    cat > global_rules.md << 'EOF'
 # Global Windsurf Rules
 
 ## Communication Style
@@ -1682,8 +1758,12 @@ setup_windsurf() {
 - Use secure coding practices
 - Avoid hardcoding sensitive information
 - Implement proper error handling
-- Follow principle of least privilege
-EOF
+- Follow principle of least privilege'
+
+    # Automatically place global rules in user's Windsurf directory
+    local windsurf_global_dir="$HOME/.windsurf"
+    local windsurf_global_path="$windsurf_global_dir/global_rules.md"
+    place_global_rules "Windsurf" "$global_rules_content" "$windsurf_global_path"
 
     # Create always-on coding standards rule
     cat > .windsurf/rules/coding-standards.md << 'EOF'
